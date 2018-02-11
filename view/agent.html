@@ -20,16 +20,21 @@
 					</form>
 				</div>
 				<div class="col-md-4 agent-section">
-					<select class="container-fluid mySelect" v-model="currentChannel" id="channel">
-						<option v-for="option in channels" v-bind:value="option">
-							{{ option }}
-						</option>
-					</select>
-					<ul class="users" >
-						<li v-for="user in users">
-							{{ user.name }}
-						</li>
-					</ul>
+					<div>
+						<select class="container-fluid mySelect" v-model="currentChannel" id="channel">
+							<option v-for="option in channels" v-bind:value="option">
+								{{ option }}
+							</option>
+						</select>
+					</div>
+					<div>
+						<button @click="refereshUserList"></button>
+						<ul class="users" >
+							<li v-for="user in users" v-on:click="selectUser(user)">
+								{{ user.username }}
+							</li>
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>

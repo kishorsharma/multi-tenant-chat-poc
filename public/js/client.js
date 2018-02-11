@@ -28,6 +28,47 @@ var app = new Vue({
 });
 
 /**
+ * Fetch available user list for given channel
+ * @param {*} channelName 
+ */
+var fetchChannelQuestion = function (channelName) {
+    socket.emit('fetch_channel_questions', {channel:channelName});
+};
+
+/**
+ * trigger event on socket connection. Only using for checking ID
+ */
+socket.on('connect', function () {
+    console.log('id: ', socket.id);
+    let searchParams = (new URL(document.location)).searchParams;
+    console.log('location: ', searchParams.get('site'));
+    socket.emit('client_login', {
+        site: searchParams.get('site'),
+        channel: searchParams.get('channel'),
+        username: searchParams.get('name'),
+        email: searchParams.get('email')
+    });
+});
+
+/**
+ * Fetch user agent channel list
+ */
+socket.on('client_site', function (data) {
+    console.log('client_site info: ', data);
+    app.site = data.site;
+    fetchChannelQuestion(app.site.defaultChannel);
+});
+
+/**
+ * Fetch question to be displayed
+ */
+socket.on('client_site', function (data) {
+    console.log('client_site info: ', data);
+    app.site = data.site;
+    fetchChannelQuestion(app.site.defaultChannel);
+});
+
+/**
  * Socket event listner for agent reply message for this client
  */
 socket.on('agent_reply', function(data) {

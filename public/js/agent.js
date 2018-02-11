@@ -5,7 +5,7 @@ var socket = io();
  * @param {*} e 
  */
 var postMessage = function(e) {
-    console.log('postMessage is been called', e);
+    console.log('postMessage is been called', app.selectedUser);
     if (app.selectedUser) {
         socket.emit('agent_message', {
             to: app.selectedUser.id,
@@ -16,6 +16,15 @@ var postMessage = function(e) {
     }
     e.preventDefault();
 }; 
+
+var refereshUserList = function () {
+    fetchChannelUsers(app.currentChannel);
+};
+
+var selectUser = function (user) {
+    console.log('user: ', user);
+    app.selectedUser = user;
+};
 
 var app = new Vue({
     el: '#app',
@@ -30,7 +39,9 @@ var app = new Vue({
         selectedUser: null
     },
     methods: {
-        post: postMessage
+        post: postMessage,
+        refereshUserList: refereshUserList,
+        selectUser: selectUser
     }
 });
 
@@ -39,7 +50,7 @@ var app = new Vue({
  * @param {*} channelName 
  */
 var fetchChannelUsers = function (channelName) {
-    socket.emit('fetch_channel_users');
+    socket.emit('fetch_channel_users', {channel:channelName});
 };
 
 /**
@@ -47,17 +58,30 @@ var fetchChannelUsers = function (channelName) {
  */
 socket.on('connect', function () {
     console.log('id: ', socket.id);
+    let searchParams = (new URL(document.location)).searchParams;
+    console.log('location: ', searchParams.get('site'));
     socket.emit('agent_login', {
-        
+        site: searchParams.get('site'),
+        page: searchParams.get('page')
     });
-});  
+});
+
+/**
+ * trigger event on socket connection. Only using for checking ID
+ */
+socket.on('site_info', function (data) {
+    app.site = data.site;
+});
 
 /**
  * Fetch user agent channel list
  */
-socket.on('agent_channels', function (data) {
-    app.channels.push(data.channels);
-    fetchChannelUsers(app.channels[0]);
+socket.on('agent_site', function (data) {
+    console.log('agent_site info: ', data);
+    app.site = data.site;
+    app.channels = data.site.channels;
+    app.currentChannel = app.site.defaultChannel;
+    fetchChannelUsers(app.currentChannel);
 });
 
 /**
