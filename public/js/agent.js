@@ -11,7 +11,8 @@ var postMessage = function(e) {
             to: app.selectedUser.id,
             msg:this.message
         });
-        app.messages.push({user: 'self', msg:this.message});
+        //app.messages.push({user: 'self', msg:this.message});
+        app.selectedUser.chats.push({user: 'self', msg:this.message});
         app.message = '';
     }
     e.preventDefault();
@@ -24,6 +25,7 @@ var refereshUserList = function () {
 var selectUser = function (user) {
     console.log('user: ', user);
     app.selectedUser = user;
+    app.selectedUser.chats = app.selectedUser.chats || [];
 };
 
 var app = new Vue({
@@ -36,7 +38,7 @@ var app = new Vue({
         users: [],
         channels: [],
         currentChannel: 'home',
-        selectedUser: null
+        selectedUser: {}
     },
     methods: {
         post: postMessage,
@@ -74,6 +76,13 @@ socket.on('site_info', function (data) {
 });
 
 /**
+ * trigger event on socket connection. Only using for checking ID
+ */
+socket.on('client_added', function (data) {
+    app.users.push(data);
+});
+
+/**
  * Fetch user agent channel list
  */
 socket.on('agent_site', function (data) {
@@ -96,6 +105,13 @@ socket.on('channel_user_list', function (data) {
  * Socket event listner for client message for this agent
  */
 socket.on('client_message', function(data) {
-    console.log('msg recieved: ', data.from);
-    app.messages.push(data);
+    console.log('msg recieved: ', data.client);
+    //app.messages.push(data);
+    var user = {};
+    for(var i=0;i<app.users.length; i++) {
+        if (app.users[i].id === data.client) {
+            user = app.users[i];
+        }
+    }
+    user.chats.push({user: 'client', msg: data.msg});
 });

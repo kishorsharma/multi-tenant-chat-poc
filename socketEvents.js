@@ -8,7 +8,6 @@ module.exports = (io) => {
             console.log('user disconnected', socket.id);
             let _channelUsers = channelUserList[`${socket.site.name}_${socket.channel}`] || {};
             _channelUsers.clients = (_channelUsers.clients || []).filter( function (client) {
-                console.log(client);
                 return client.id !== socket.id;
             });
         });
@@ -24,13 +23,12 @@ module.exports = (io) => {
     
         /* Client events */
         socket.on('client_message', function(data){
-            console.log('message: ', data.msg, ' id:', socket.id);
-            console.log('site: ', socket.site.name, ' channel:', socket.currentChannel);
-            
             let _channelUsers = channelUserList[`${socket.site.name}_${socket.channel}`] || {};
-            console.log('channelUserList: ', channelUserList);
-            console.log('_channelUsers: ', _channelUsers);
             let siteAgent = _channelUsers.agent;
+            socket.userInfo.chats.push({
+                user: 'client',
+                msg: data.msg
+            });
             if (siteAgent) {
                 io.to(siteAgent.id).emit('client_message', {
                     client: socket.id,
@@ -39,7 +37,14 @@ module.exports = (io) => {
             } else {
                 io.to(socket.id).emit('agent_reply', {msg: 'No Agent online. Kindly try later'});
             }
-            
+        });
+
+        socket.on('agent_msg', function (data) {
+            console.log('socket.userInfo: ', socket.userInfo, data);
+            socket.userInfo.chats.push({
+                user: 'self',
+                msg: data.msg
+            });
         });
 
         socket.on('client_login', function(data){
@@ -54,19 +59,23 @@ module.exports = (io) => {
             data.channel = data.channel || socket.site.defaultChannel;
             let _channelUsers = channelUserList[`${socket.site.name}_${data.channel}`] || {};
             _channelUsers.clients = _channelUsers.clients || [];
-            _channelUsers.clients.push({
+            const userInfo = {
                 id: socket.id,
                 site: socket.site,
                 username: data.username,
-                email: data.email
-            });
+                email: data.email,
+                chats: []
+            };
+            socket.userInfo = userInfo;
+            _channelUsers.clients.push(userInfo);
             channelUserList[`${socket.site.name}_${data.channel}`]= _channelUsers;
-            console.log(channelUserList);
+            if (_channelUsers.agent) {
+                io.to(_channelUsers.agent.id).emit('client_added', userInfo);
+            }
             io.to(socket.id).emit('client_site', {site: socket.site});
         });
 
         socket.on('fetch_channel_questions', (data) => {
-            console.log('fetch_channel_questions', data.channel);
             data.channel = data.channel || socket.site.defaultChannel;
             const siteChannelName = `${socket.site.name}_${data.channel}`;
             socket.currentChannel = data.channel;
@@ -75,21 +84,16 @@ module.exports = (io) => {
     
         /* Agent events */
         socket.on('agent_message', function(data) {
-            console.log('message: ', data, ' id:', socket.id);
             io.to(data.to).emit('agent_reply', {msg: data.msg});
         });
     
         socket.on('fetch_channel_users', (data) => {
-            console.log('fetch_channel_users', data.channel);
-            console.log(channelUserList);
             const siteChannelName = `${socket.site.name}_${data.channel}`;
             const clients = channelUserList[siteChannelName] ? channelUserList[siteChannelName].clients : [];
-            console.log(channelUserList);
             io.to(socket.id).emit('channel_user_list', {users: clients});
         });
     
         socket.on('agent_login', function(data){
-            console.log('message: ', data, ' id:', socket.id);
             for (let i=0; i<sites.length; i++) {
                 if (sites[i].id === data.site) {
                     socket.site = sites[i];
@@ -103,7 +107,6 @@ module.exports = (io) => {
                 site: socket.site
             };
             channelUserList[`${socket.site.name}_${data.channel}`] = _channelUsers;
-            console.log('>>>>>>>>>>>>>>>>', channelUserList);
             io.to(socket.id).emit('agent_site', {site: socket.site});
         });
     });

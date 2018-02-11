@@ -72,7 +72,7 @@ socket.on('client_site', function (data) {
  * Socket event listner for agent reply message for this client
  */
 socket.on('agent_reply', function(data) {
-    console.log('msg recieved: ', data.from);
+    console.log('msg recieved: ', data);
     app.messages.push(data);
-    app.message = '';
+    socket.emit('agent_msg', data);
 });

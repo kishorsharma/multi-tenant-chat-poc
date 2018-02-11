@@ -1,0 +1,16 @@
+[
+    {
+        "id": "siteA",
+        "name": "siteA",
+        "type": "company",
+        "channels" : ["Channel1", "Channel2"],
+        "defaultChannel": "Channel1"
+    },
+    {
+        "id": "siteB",
+        "name": "siteB",
+        "type": "company",
+        "channels" : ["Channel3", "Channel4"],
+        "defaultChannel": "Channel3"
+    }
+]
