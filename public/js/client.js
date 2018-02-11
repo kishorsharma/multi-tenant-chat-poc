@@ -1,5 +1,19 @@
 var socket = io();
 
+/**
+ * Post message to server if any client is selected
+ * @param {*} e 
+ */
+var postMessage = function(e) {
+
+    socket.emit('client_message', {
+        msg:this.message
+    });
+    app.messages.push({user: 'self', msg:this.message});
+    app.message = '';
+    e.preventDefault();
+};
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -9,28 +23,9 @@ var app = new Vue({
         ]
     },
     methods: {
-        post: function(e) {
-        socket.emit('client_message', this.message);
-        e.preventDefault();
-        }
+        post: postMessage
     }
 });
-
-/**
- * Post message to server if any client is selected
- * @param {*} e 
- */
-var postMessage = function(e) {
-    if (selectedUser) {
-        socket.emit('agent_message', {
-            to: selectedUser.id,
-            msg:this.message
-        });
-        app.messages.push({user: 'self', msg:this.message});
-        app.message = '';
-    }
-    e.preventDefault();
-};
 
 /**
  * Socket event listner for agent reply message for this client

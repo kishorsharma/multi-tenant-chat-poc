@@ -1,5 +1,22 @@
 var socket = io();
 
+/**
+ * Post message to server if any client is selected
+ * @param {*} e 
+ */
+var postMessage = function(e) {
+    console.log('postMessage is been called', e);
+    if (app.selectedUser) {
+        socket.emit('agent_message', {
+            to: app.selectedUser.id,
+            msg:this.message
+        });
+        app.messages.push({user: 'self', msg:this.message});
+        app.message = '';
+    }
+    e.preventDefault();
+}; 
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -16,22 +33,6 @@ var app = new Vue({
         post: postMessage
     }
 });
-
-/**
- * Post message to server if any client is selected
- * @param {*} e 
- */
-var postMessage = function(e) {
-    if (selectedUser) {
-        socket.emit('agent_message', {
-            to: selectedUser.id,
-            msg:this.message
-        });
-        app.messages.push({user: 'self', msg:this.message});
-        app.message = '';
-    }
-    e.preventDefault();
-}; 
 
 /**
  * Fetch available user list for given channel
