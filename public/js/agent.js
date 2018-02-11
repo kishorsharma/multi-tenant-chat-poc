@@ -47,6 +47,9 @@ var fetchChannelUsers = function (channelName) {
  */
 socket.on('connect', function () {
     console.log('id: ', socket.id);
+    socket.emit('agent_login', {
+        
+    });
 });  
 
 /**
