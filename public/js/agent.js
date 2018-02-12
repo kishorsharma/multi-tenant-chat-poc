@@ -6,7 +6,7 @@ var socket = io();
  */
 var postMessage = function(e) {
     console.log('postMessage is been called', app.selectedUser);
-    if (app.selectedUser) {
+    if (app.selectedUser && app.selectedUser.id) {
         socket.emit('agent_message', {
             to: app.selectedUser.id,
             msg:this.message
@@ -64,7 +64,7 @@ socket.on('connect', function () {
     console.log('location: ', searchParams.get('site'));
     socket.emit('agent_login', {
         site: searchParams.get('site'),
-        page: searchParams.get('page')
+        channel: searchParams.get('channel')
     });
 });
 

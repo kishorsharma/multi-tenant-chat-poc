@@ -95,6 +95,7 @@ module.exports = (io) => {
         });
     
         socket.on('agent_login', function(data){
+            
             for (let i=0; i<sites.length; i++) {
                 if (sites[i].id === data.site) {
                     socket.site = sites[i];
