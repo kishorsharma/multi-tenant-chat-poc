@@ -1,5 +1,6 @@
 
 const sites = require('./mocks/sites.json');
+const questions = require('./mocks/questions.json');
 const channelUserList = {};
 module.exports = (io) => {
     io.on('connection', (socket) => {
@@ -79,7 +80,7 @@ module.exports = (io) => {
             data.channel = data.channel || socket.site.defaultChannel;
             const siteChannelName = `${socket.site.name}_${data.channel}`;
             socket.currentChannel = data.channel;
-            io.to(socket.id).emit('channel_question_list', {questions: channelUserList[siteChannelName]});
+            io.to(socket.id).emit('channel_question_list', {questions: questions});
         });
     
         /* Agent events */

@@ -13,6 +13,14 @@
 			<ul class="messages" >
 				<li v-for="item in messages">
 					{{ item.msg }}
+					<ul v-if="item.type === 'bot_question'">
+						<li 
+							v-for="op in item.options"
+							@click="botOptionClicked(op)"
+							style="display:inline">
+								{{op}}
+						</li>
+					</ul>
 				</li>
 			</ul>
 			<form class="msg_input">

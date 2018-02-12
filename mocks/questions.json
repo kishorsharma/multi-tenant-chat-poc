@@ -1,16 +1,17 @@
 [
     {
-        "id": "siteA",
-        "name": "siteA",
-        "type": "company",
-        "channels" : ["Channel1", "Channel2"],
-        "defaultChannel": "Channel1"
+        "msg": "Are you looking for help in planning your trip?",
+        "options": ["yes", "not sure"],
+        "type": "bot_question"
     },
     {
-        "id": "siteB",
-        "name": "siteB",
-        "type": "company",
-        "channels" : ["Channel3", "Channel4"],
-        "defaultChannel": "Channel3"
+        "msg": "How many are planning to go?",
+        "options": ["1", "2", "3"],
+        "type": "bot_question"
+    },
+    {
+        "msg": "How many days tour are you planning?",
+        "options": ["1", "2", "3"],
+        "type": "bot_question"
     }
 ]

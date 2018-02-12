@@ -5,13 +5,31 @@ var socket = io();
  * @param {*} e 
  */
 var postMessage = function(e) {
-
     socket.emit('client_message', {
         msg:this.message
     });
     app.messages.push({user: 'self', msg:this.message});
     app.message = '';
     e.preventDefault();
+};
+
+var askBotQuestions = function () {
+    if (app.botQuestions && app.botQuestions.length > 0) {
+        var question = app.botQuestions.shift();
+        console.log('question: ', question);
+        app.messages.push(question);
+        socket.emit('agent_msg', question);
+        app.botQuestionActive = true;
+    }
+};
+
+var botOptionClicked = function (data) {
+    socket.emit('client_message', {
+        msg:data
+    });
+    app.messages.push({user: 'self', msg:data});
+    app.message = '';
+    askBotQuestions();
 };
 
 var app = new Vue({
@@ -23,7 +41,8 @@ var app = new Vue({
         ]
     },
     methods: {
-        post: postMessage
+        post: postMessage,
+        botOptionClicked:botOptionClicked
     }
 });
 
@@ -62,10 +81,12 @@ socket.on('client_site', function (data) {
 /**
  * Fetch question to be displayed
  */
-socket.on('client_site', function (data) {
+socket.on('channel_question_list', function (data) {
     console.log('client_site info: ', data);
-    app.site = data.site;
-    fetchChannelQuestion(app.site.defaultChannel);
+    app.botQuestions = data.questions;
+    //if (app.botQuestions) {
+        askBotQuestions();
+    //}
 });
 
 /**
