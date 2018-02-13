@@ -11,6 +11,9 @@ module.exports = (io) => {
             _channelUsers.clients = (_channelUsers.clients || []).filter( function (client) {
                 return client.id !== socket.id;
             });
+            if(_channelUsers.agent) {
+                io.to(_channelUsers.agent.id).emit('client_removed', socket.userInfo);
+            }
         });
         
         socket.on('join_room', function(data) {
@@ -32,11 +35,12 @@ module.exports = (io) => {
             });
             if (siteAgent) {
                 io.to(siteAgent.id).emit('client_message', {
+                    user: 'client',
                     client: socket.id,
                     msg: data.msg
                 });
             } else {
-                io.to(socket.id).emit('agent_reply', {msg: 'No Agent online. Kindly try later'});
+                io.to(socket.id).emit('agent_reply', {user: 'agent', msg: 'No Agent online. Kindly try later'});
             }
         });
 
@@ -85,7 +89,7 @@ module.exports = (io) => {
     
         /* Agent events */
         socket.on('agent_message', function(data) {
-            io.to(data.to).emit('agent_reply', {msg: data.msg});
+            io.to(data.to).emit('agent_reply', {user: 'agent', msg: data.msg});
         });
     
         socket.on('fetch_channel_users', (data) => {

@@ -12,7 +12,7 @@ var postMessage = function(e) {
             msg:this.message
         });
         //app.messages.push({user: 'self', msg:this.message});
-        app.selectedUser.chats.push({user: 'self', msg:this.message});
+        app.selectedUser.chats.push({user: 'agent', msg:this.message});
         app.message = '';
     }
     e.preventDefault();
@@ -76,10 +76,20 @@ socket.on('site_info', function (data) {
 });
 
 /**
- * trigger event on socket connection. Only using for checking ID
+ * On client login, add user to channel list
  */
 socket.on('client_added', function (data) {
     app.users.push(data);
+});
+
+/**
+ * On user disconnect remove user from the user list
+ */
+socket.on('client_removed', function (data) {
+
+    app.users = app.users.filter( function(user) {
+        return data.id !== user.id;
+    });
 });
 
 /**

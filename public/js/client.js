@@ -8,7 +8,7 @@ var postMessage = function(e) {
     socket.emit('client_message', {
         msg:this.message
     });
-    app.messages.push({user: 'self', msg:this.message});
+    app.messages.push({user: 'client', msg:this.message});
     app.message = '';
     e.preventDefault();
 };
@@ -27,7 +27,7 @@ var botOptionClicked = function (data) {
     socket.emit('client_message', {
         msg:data
     });
-    app.messages.push({user: 'self', msg:data});
+    app.messages.push({user: 'client', msg:data});
     app.message = '';
     askBotQuestions();
 };
